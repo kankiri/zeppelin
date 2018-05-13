@@ -7,7 +7,7 @@ from zeppelin.utils import discount
 
 
 class Agent(BaseAgent):
-	def __init__(self, name, dimensions, batch=10, gamma=0.95, epsilon=1, decay=1-1e-3):
+	def __init__(self, name, dimensions, batch=10, gamma=0.95, epsilon=1, decay=1-1e-4):
 		super().__init__(name)
 		self.batch = batch
 		self.gamma = gamma
@@ -49,7 +49,8 @@ class Agent(BaseAgent):
 			past_value_predictions = self.critic_model.predict([positions])[0]
 			future_value_prediction = [0] if dones[-1] else self.critic_model.predict([outcomes[-1:]])[0][0]
 		
-			targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1].reshape(-1, 1)
+			targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1]
+			targets = targets.reshape(-1, 1)
 			errors = targets - past_value_predictions
 		
 			self.actor_model.fit([positions], [actions.reshape(-1, 1), errors])

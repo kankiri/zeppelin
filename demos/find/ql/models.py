@@ -19,7 +19,7 @@ class Model(BaseModel):
 			connection = tf.layers.dense(inputs=connection, units=units, activation=tf.nn.elu,
 				kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
 		outputs = tf.layers.dense(inputs=connection, units=self.output_shapes[0][0],
-			kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
+			kernel_initializer=tf.keras.initializers.he_normal())
 		return inputs, [outputs]
 	
 	def _updates(self, outputs):
