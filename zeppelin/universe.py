@@ -15,6 +15,6 @@ class Universe:
 	
 	@staticmethod
 	def async(universe, limit=None):
-		for world in universe.worlds:
+		for name, world in self.worlds.items():
 			p = Process(target=world.run, args=(limit,))
 			p.start()

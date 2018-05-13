@@ -36,10 +36,10 @@ class Model:
 		feed = dict(zip(self.gradients, gradients))
 		self.session.run(self.apply, feed_dict=feed)
 	
-	def get_weights(self):
+	def get_parameters(self):
 		return self.session.run(self.weights)
 	
-	def set_weights(self, values):
+	def set_parameters(self, values):
 		for weight, value in zip(self.weights, values):
 			weight.load(value, self.session)
 	

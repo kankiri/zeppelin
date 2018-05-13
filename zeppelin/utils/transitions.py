@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Transitions(dict):
-	def __init__(self, cause_keys, effect_keys, extra_keys=[], maxlen=1e6, part=3):
+	def __init__(self, cause_keys, effect_keys=[], extra_keys=[], maxlen=1e6, part=3):
 		super().__init__()
 		self.cekeys = cause_keys + effect_keys
 		self.effect_keys = effect_keys
