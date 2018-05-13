@@ -5,7 +5,7 @@ from zeppelin.utils.tf import Model as BaseModel
 
 
 class ActorModel(BaseModel):
-	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.001):
+	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.0005):
 		self.hidden_layers = hidden_layers
 		self.learning_rate = learning_rate
 		super().__init__(input_shapes, output_shapes)
@@ -44,7 +44,7 @@ class ActorModel(BaseModel):
 
 
 class CriticModel(BaseModel):
-	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.01):
+	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.001):
 		self.hidden_layers = hidden_layers
 		self.learning_rate = learning_rate
 		super().__init__(input_shapes, output_shapes)
