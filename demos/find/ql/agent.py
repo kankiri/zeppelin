@@ -41,8 +41,11 @@ class Agent(BaseAgent):
 	
 	def learn(self):
 		position, action, reward, done, outcome = self.memory[-2]
-		prediction = self.model.predict([[position]])[0][0]
-		prediction_new = [0] if done else self.model.predict([[outcome]])[0][0]
-		value_new = np.max(prediction_new)
-		prediction[action] = reward + self.gamma * value_new
-		self.model.fit([[position]], [[prediction]])
+		past_value_prediction = self.model.predict([[position]])[0][0]
+		future_value_prediction = [0] if done else self.model.predict([[outcome]])[0][0]
+		future_value_prediction = np.max(future_value_prediction)
+
+		target = past_value_prediction
+		target[action] = reward + self.gamma * future_value_prediction
+		
+		self.model.fit([[position]], [[target]])

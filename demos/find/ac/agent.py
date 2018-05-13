@@ -45,10 +45,10 @@ class Agent(BaseAgent):
 	def learn(self, number=1):
 		positions, actions, rewards, dones, outcomes = self.memory[-(number+1):-1]
 		past_value_predictions = self.critic_model.predict([positions])[0]
-		future_value_prediction = self.critic_model.predict([outcomes[-1:]])[0][0]
+		future_value_prediction = [0] if dones[-1] else self.critic_model.predict([outcomes[-1:]])[0][0]
 		
-		td_targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1].reshape(-1, 1)
-		td_errors = td_targets - past_value_predictions
+		targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1].reshape(-1, 1)
+		errors = targets - past_value_predictions
 		
-		self.actor_model.fit([positions], [actions.reshape(-1, 1), td_errors])
-		self.critic_model.fit([positions], [td_targets])
+		self.actor_model.fit([positions], [actions.reshape(-1, 1), errors])
+		self.critic_model.fit([positions], [targets])

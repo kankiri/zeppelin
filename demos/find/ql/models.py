@@ -5,7 +5,7 @@ from zeppelin.utils.tf import Model as BaseModel
 
 
 class Model(BaseModel):
-	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.001):
+	def __init__(self, input_shapes, output_shapes, hidden_layers=[], learning_rate=0.01):
 		self.hidden_layers = hidden_layers
 		self.learning_rate = learning_rate
 		super().__init__(input_shapes, output_shapes)
