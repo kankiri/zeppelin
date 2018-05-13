@@ -19,8 +19,7 @@ class Agent(BaseAgent):
 		self.memory = Transitions(
 			cause_keys=['positions', 'actions'],
 			effect_keys=['rewards', 'dones', 'outcomes'],
-			extra_keys=['perf'],
-			maxlen=10
+			extra_keys=['perf']
 		)
 	
 	def react(self, position, reward=0, done=False):
@@ -29,6 +28,7 @@ class Agent(BaseAgent):
 		if self.age % self.batch == (self.batch - 1) or done:
 			self.learn(self.batch)
 		if done:
+			self.memory.forget()
 			self.epsilon *= self.decay
 			self.episode += 1
 		self.age += 1
