@@ -30,7 +30,7 @@ class Agent(BaseAgent):
 			[14., -14.] * dimensions
 		])
 	
-	def react(self, position, reward=0, done=False):
+	def react(self, position, time, reward=0, done=False):
 		prediction = self.model.predict([position[np.newaxis]])[0][0]
 		choice = np.random.choice(prediction, p=prediction)
 		action = np.argmax(prediction == choice)

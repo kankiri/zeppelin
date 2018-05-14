@@ -7,22 +7,25 @@ class Engine(BaseEngine):
 	def __init__(self, agents, dimensions=2, maxtime=1000, step_factor=1, win_factor=0, time_factor=0):
 		super().__init__(agents)
 		self.agent_name = list(agents)[0]
-		self.target = np.array([14] * dimensions)
+		self.center = np.array([0] * dimensions)
 		self.maxtime = maxtime
 		self.step_factor = step_factor
 		self.win_factor = win_factor
 		self.time_factor = time_factor
 		
+		self.target = None
 		self.position = None
 		self.distance = None
 		self.time = None
 	
 	def reset(self):
-		self.position = np.random.normal(self.target, 20/len(self.target))
+		self.target = np.random.normal(self.center, 20/len(self.center))
+		self.position = np.random.normal(self.center, 20/len(self.center))
 		self.distance = self._get_distance()
 		self.time = 0
 		return {self.agent_name: {
 			'position': self.position,
+			'direction': 0,
 			'time': self.time
 		}}
 	
@@ -30,7 +33,8 @@ class Engine(BaseEngine):
 		action = action[self.agent_name]['action']
 		self.position += self._direction(action)
 		distance = self._get_distance()
-		reward = (self.distance - distance) * self.step_factor
+		direction = (self.distance - distance)
+		reward = direction * self.step_factor
 		self.distance = distance
 		done = False
 		
@@ -46,6 +50,7 @@ class Engine(BaseEngine):
 			self.reset()
 		return {self.agent_name: {
 			'position': self.position,
+			'direction': direction,
 			'time': self.time,
 			'reward': reward,
 			'done': done

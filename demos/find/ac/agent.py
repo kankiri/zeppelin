@@ -1,9 +1,8 @@
 import numpy as np
-
-from zeppelin.utils import Transitions
-from .models import ActorModel, CriticModel
 from zeppelin import Agent as BaseAgent
-from zeppelin.utils import discount
+from zeppelin.utils import discount, Transitions
+
+from .models import ActorModel, CriticModel
 
 
 class Agent(BaseAgent):
@@ -23,9 +22,9 @@ class Agent(BaseAgent):
 			extra_keys=['perf']
 		)
 	
-	def react(self, position, reward=0, done=False):
+	def react(self, position, time, reward=0, done=False):
 		action = self.respond(position)
-		self.memory.store(position.copy(), action, reward, done, position.copy(), perf=reward)
+		self.memory.store(position.copy(), action, reward, bool(done), position.copy(), perf=reward)
 		if self.age % self.batch == (self.batch - 1) or done:
 			self.learn(self.batch)
 		if done:

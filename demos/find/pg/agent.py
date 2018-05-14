@@ -1,9 +1,8 @@
 import numpy as np
-
-from zeppelin.utils import Transitions
-from .models import Model
 from zeppelin import Agent as BaseAgent
-from zeppelin.utils import discount
+from zeppelin.utils import discount, Transitions
+
+from .models import Model
 
 
 class Agent(BaseAgent):
@@ -21,9 +20,9 @@ class Agent(BaseAgent):
 			extra_keys=['perf']
 		)
 	
-	def react(self, position, reward=0, done=False):
+	def react(self, position, time, reward=0, done=False):
 		action = self.respond(position)
-		self.memory.store(position.copy(), action, reward, done, position.copy(), perf=reward)
+		self.memory.store(position.copy(), action, reward, bool(done), position.copy(), perf=reward)
 		if done:
 			self.learn()
 			self.memory.forget()
@@ -44,4 +43,5 @@ class Agent(BaseAgent):
 		positions, actions, rewards, dones, outcomes = self.memory[:-1]
 		if len(positions) >= 1:
 			advantages = discount(rewards, self.gamma).reshape(-1, 1)
+			# advantages = (advantages - np.mean(advantages)) / (np.std(advantages) or 1e-9)
 			self.model.fit([positions], [actions.reshape(-1, 1), advantages])
