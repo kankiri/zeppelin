@@ -27,7 +27,7 @@ class ActorModel(BaseModel):
 		advantages = tf.placeholder(shape=(None, 1), dtype=tf.float32, name='Advantages')
 		
 		onehot = tf.one_hot(actions, self.output_shapes[0][0], dtype=tf.float32)
-		action_values = tf.reduce_sum(outputs[0] * tf.squeeze(onehot), axis=1, keepdims=True)
+		action_values = tf.reduce_sum(self.outputs[0] * tf.squeeze(onehot), axis=1, keepdims=True)
 		action_values = tf.clip_by_value(action_values, 1e-9, 1-1e-9)
 		loss = -tf.reduce_sum(advantages * tf.log(action_values))
 		gradients = tf.gradients(loss, self.weights)
