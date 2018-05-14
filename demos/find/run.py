@@ -31,20 +31,20 @@ if __name__ == '__main__':
 	world = World('world-pg', engine)
 	worlds[world.name] = world
 
-	# agent = tracking.add(ql.Agent('ql-agent', dimensions, gamma=0), wrap)
-	# engine = Find({agent.name: agent}, dimensions)
-	# world = World('world-ql', engine)
-	# worlds[world.name] = world
+	agent = tracking.add(ql.Agent('ql-agent', dimensions, gamma=0), wrap)
+	engine = Find({agent.name: agent}, dimensions)
+	world = World('world-ql', engine)
+	worlds[world.name] = world
 	
-	# agent = tracking.add(ac.Agent('ac-agent', dimensions, gamma=0), wrap)
-	# engine = Find({agent.name: agent}, dimensions)
-	# world = World('world-ac', engine)
-	# worlds[world.name] = world
+	agent = tracking.add(ac.Agent('ac-agent', dimensions, gamma=0), wrap)
+	engine = Find({agent.name: agent}, dimensions)
+	world = World('world-ac', engine)
+	worlds[world.name] = world
 	
-	# agent = tracking.add(tg.Agent('tg-agent', dimensions), wrap)
-	# engine = Find({agent.name: agent}, dimensions)
-	# world = World('world-tg', engine)
-	# worlds[world.name] = world
+	agent = tracking.add(tg.Agent('tg-agent', dimensions), wrap)
+	engine = Find({agent.name: agent}, dimensions)
+	world = World('world-tg', engine)
+	worlds[world.name] = world
 	
 	universe = Universe(worlds)
 	universe.run(limit=4e6)

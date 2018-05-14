@@ -13,7 +13,7 @@ class Agent(BaseAgent):
 		self.epsilon = epsilon
 		self.decay = decay
 		
-		self.model = Model(((dimensions,),), ((dimensions*2,),))
+		self.model = Model(((dimensions,),), ((dimensions*2,),), [7])
 		self.episode = 0
 		self.memory = Transitions(
 			cause_keys=['positions', 'actions'],
