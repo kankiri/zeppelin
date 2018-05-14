@@ -9,7 +9,7 @@ from zeppelin import Universe, World
 from zeppelin.engines import Find
 from zeppelin.utils import tracking
 
-import ac, ql, tg
+import ac, pg, ql, tg
 
 
 def wrap(react, self, *args, **kwargs):
@@ -26,20 +26,25 @@ if __name__ == '__main__':
 	dimensions = 2
 	worlds = {}
 	
-	agent = tracking.add(ql.Agent('ql-agent', dimensions), wrap)
+	agent = tracking.add(pg.Agent('pg-agent', dimensions, gamma=0), wrap)
 	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-00', engine)
+	world = World('world-pg', engine)
 	worlds[world.name] = world
+
+	# agent = tracking.add(ql.Agent('ql-agent', dimensions, gamma=0), wrap)
+	# engine = Find({agent.name: agent}, dimensions)
+	# world = World('world-ql', engine)
+	# worlds[world.name] = world
 	
-	agent = tracking.add(ac.Agent('ac-agent', dimensions), wrap)
-	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-01', engine)
-	worlds[world.name] = world
+	# agent = tracking.add(ac.Agent('ac-agent', dimensions, gamma=0), wrap)
+	# engine = Find({agent.name: agent}, dimensions)
+	# world = World('world-ac', engine)
+	# worlds[world.name] = world
 	
-	agent = tracking.add(tg.Agent('tg-agent', dimensions), wrap)
-	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-02', engine)
-	worlds[world.name] = world
+	# agent = tracking.add(tg.Agent('tg-agent', dimensions), wrap)
+	# engine = Find({agent.name: agent}, dimensions)
+	# world = World('world-tg', engine)
+	# worlds[world.name] = world
 	
 	universe = Universe(worlds)
 	universe.run(limit=4e6)

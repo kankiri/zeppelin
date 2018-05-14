@@ -13,7 +13,7 @@ class Agent(BaseAgent):
 		self.epsilon = epsilon
 		self.decay = decay
 		
-		self.model = Model(((dimensions,),), ((dimensions*2,),), [7])
+		self.model = Model(((dimensions,),), ((dimensions*2,),))
 		self.episode = 0
 		self.memory = Transitions(
 			cause_keys=['positions', 'actions'],
@@ -34,14 +34,14 @@ class Agent(BaseAgent):
 	
 	def respond(self, position):
 		if np.random.rand() < self.epsilon:
-			return np.random.randint(0, *self.actor_model.output_shapes[0])
+			return np.random.randint(0, *self.model.output_shapes[0])
 		else:
-			prediction = self.actor_model.predict([[position]])[0][0]
+			prediction = self.model.predict([[position]])[0][0]
 			choice = np.random.choice(prediction, p=prediction)
 			return np.argmax(prediction == choice)
 	
 	def learn(self):
 		positions, actions, rewards, dones, outcomes = self.memory[:-1]
 		if len(positions) >= 1:
-			targets = discount(rewards, self.gamma).reshape(-1, 1)
-			self.model.fit([positions], [actions.reshape(-1, 1), targets])
+			advantages = discount(rewards, self.gamma).reshape(-1, 1)
+			self.model.fit([positions], [actions.reshape(-1, 1), advantages])
