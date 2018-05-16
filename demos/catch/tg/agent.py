@@ -11,7 +11,7 @@ class Agent(BaseAgent):
 		self.actions = None
 		self.memory = Transitions(['actions'], extra_keys=['perf'])
 	
-	def react(self, position, direction, time, reward=0, done=False):
+	def react(self, position, direction, time, reward=0, done=None):
 		action = self.respond(direction, done)
 		self.memory.store(action, perf=reward)
 		if done:
