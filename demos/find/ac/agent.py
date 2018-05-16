@@ -1,20 +1,19 @@
 import numpy as np
-
-from zeppelin.utils import Transitions
-from .models import ActorModel, CriticModel
 from zeppelin import Agent as BaseAgent
-from zeppelin.utils import discount
+from zeppelin.utils import discount, Transitions
+
+from .models import ActorModel, CriticModel
 
 
 class Agent(BaseAgent):
-	def __init__(self, name, dimensions, batch=10, gamma=0.95, epsilon=1, decay=1-1e-3):
+	def __init__(self, name, dimensions, batch=10, gamma=0.95, epsilon=1, decay=1-1e-4):
 		super().__init__(name)
 		self.batch = batch
 		self.gamma = gamma
 		self.epsilon = epsilon
 		self.decay = decay
 		
-		self.actor_model = ActorModel(((dimensions,),), ((dimensions*2,),), [7])
+		self.actor_model = ActorModel(((dimensions,),), ((dimensions*2,),))
 		self.critic_model = CriticModel(((dimensions,),), ((1,),), [7])
 		self.episode = 0
 		self.memory = Transitions(
@@ -23,9 +22,9 @@ class Agent(BaseAgent):
 			extra_keys=['perf']
 		)
 	
-	def react(self, position, reward=0, done=False):
+	def react(self, position, time, reward=0, done=False):
 		action = self.respond(position)
-		self.memory.store(position.copy(), action, reward, done, position.copy(), perf=reward)
+		self.memory.store(position.copy(), action, reward, bool(done), position.copy(), perf=reward)
 		if self.age % self.batch == (self.batch - 1) or done:
 			self.learn(self.batch)
 		if done:
@@ -49,8 +48,9 @@ class Agent(BaseAgent):
 			past_value_predictions = self.critic_model.predict([positions])[0]
 			future_value_prediction = [0] if dones[-1] else self.critic_model.predict([outcomes[-1:]])[0][0]
 		
-			targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1].reshape(-1, 1)
-			errors = targets - past_value_predictions
+			targets = discount(np.concatenate((rewards, future_value_prediction)), self.gamma)[:-1]
+			targets = targets.reshape(-1, 1)
+			advantages = targets - past_value_predictions
 		
-			self.actor_model.fit([positions], [actions.reshape(-1, 1), errors])
+			self.actor_model.fit([positions], [actions.reshape(-1, 1), advantages])
 			self.critic_model.fit([positions], [targets])

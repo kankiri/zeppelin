@@ -6,10 +6,10 @@ except ImportError:
 	sys.path.append(abspath(join(sys.path[0], pardir, pardir)))
 
 from zeppelin import Universe, World
-from zeppelin.engines import Find
+from zeppelin.engines import Catch
 from zeppelin.utils import tracking
 
-import ac, pg, ql, tg
+import tg
 
 
 def wrap(react, self, *args, **kwargs):
@@ -26,23 +26,8 @@ if __name__ == '__main__':
 	dimensions = 2
 	worlds = {}
 	
-	agent = tracking.add(pg.Agent('pg-agent', dimensions, gamma=0), wrap)
-	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-pg', engine)
-	worlds[world.name] = world
-
-	agent = tracking.add(ql.Agent('ql-agent', dimensions, gamma=0), wrap)
-	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-ql', engine)
-	worlds[world.name] = world
-	
-	agent = tracking.add(ac.Agent('ac-agent', dimensions, gamma=0), wrap)
-	engine = Find({agent.name: agent}, dimensions)
-	world = World('world-ac', engine)
-	worlds[world.name] = world
-	
 	agent = tracking.add(tg.Agent('tg-agent', dimensions), wrap)
-	engine = Find({agent.name: agent}, dimensions)
+	engine = Catch({agent.name: agent}, dimensions)
 	world = World('world-tg', engine)
 	worlds[world.name] = world
 	

@@ -13,28 +13,28 @@ class Transitions(dict):
 		self.exp = self[self.cekeys[0]].__len__
 	
 	def store(self, *args, **kwargs):
-		if self.exp() == self.maxlen:
+		exp = self.exp()
+		if exp == self.maxlen:
 			self.forget_part(self.part)
-		virgin = self.exp()
 		for key, value in zip(self.cekeys, args):
-			self._append(key, value, virgin)
+			self._append(key, value, not exp)
 		for key, value in kwargs.items():
-			self._append(key, value, virgin)
+			self._append(key, value, not exp)
 			
 	def _append(self, key, value, virgin):
-		if key in self.effect_keys:
-			self[key][-1:] = (value, value) if virgin else ()
+		if key in self.effect_keys and not virgin:
+			self[key][-1:] = (value, value)
 		else:
 			self[key].append(value)
 	
 	def forget(self):
 		for key in self.cekeys:
-			self[key].clear()
+			self[key][:-1] = ()
 	
 	def forget_part(self, part):
 		limit = int(self.exp()/part)
 		for key in self.cekeys:
-			self[key][:limit] = []
+			self[key][:limit] = ()
 	
 	def __getitem__(self, key):
 		if isinstance(key, slice) or isinstance(key, int):

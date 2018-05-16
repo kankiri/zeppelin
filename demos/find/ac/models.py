@@ -19,19 +19,19 @@ class ActorModel(BaseModel):
 			connection = tf.layers.dense(inputs=connection, units=units, activation=tf.nn.elu,
 				kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
 		outputs = tf.layers.dense(inputs=connection, units=self.output_shapes[0][0], activation=tf.nn.softmax,
-			kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
+			kernel_initializer=tf.keras.initializers.he_normal())
 		return inputs, [outputs]
 	
-	def _updates(self, outputs):
+	def _loss(self):
 		actions = tf.placeholder(shape=(None, 1), dtype=tf.int32, name='Actions')
 		advantages = tf.placeholder(shape=(None, 1), dtype=tf.float32, name='Advantages')
 		
 		onehot = tf.one_hot(actions, self.output_shapes[0][0], dtype=tf.float32)
-		action_values = tf.reduce_sum(outputs[0] * tf.squeeze(onehot), axis=1, keepdims=True)
+		action_values = tf.reduce_sum(self.outputs[0] * tf.squeeze(onehot), axis=1, keepdims=True)
 		action_values = tf.clip_by_value(action_values, 1e-9, 1-1e-9)
 		loss = -tf.reduce_sum(advantages * tf.log(action_values))
-		updates = tf.gradients(loss, self.weights)
-		return [actions, advantages], updates
+		gradients = tf.gradients(loss, self.weights)
+		return [actions, advantages], loss, gradients
 	
 	def _training(self):
 		gradients = [tf.placeholder(shape=variable.shape, dtype=tf.float32, name='Gradients_{}'.format(i))
@@ -40,7 +40,8 @@ class ActorModel(BaseModel):
 		clipped_gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 		optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
 		apply = optimizer.apply_gradients(zip(clipped_gradients, self.weights))
-		return gradients, apply
+		minimize = optimizer.minimize(self.loss)
+		return gradients, apply, minimize
 
 
 class CriticModel(BaseModel):
@@ -58,16 +59,16 @@ class CriticModel(BaseModel):
 			connection = tf.layers.dense(inputs=connection, units=units, activation=tf.nn.elu,
 				kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
 		outputs = tf.layers.dense(inputs=connection, units=self.output_shapes[0][0],
-			kernel_initializer=tf.keras.initializers.he_normal(), kernel_regularizer=tf.contrib.layers.l2_regularizer)
+			kernel_initializer=tf.keras.initializers.he_normal())
 		return inputs, [outputs]
 	
-	def _updates(self, outputs):
+	def _loss(self):
 		targets = [tf.placeholder(shape=(None, *shape), dtype=tf.float32, name='Targets_{}'.format(i))
 			for i, shape in enumerate(self.output_shapes)]
 		
-		loss = tf.losses.mean_squared_error(predictions=outputs[0], labels=targets[0])
-		updates = tf.gradients(loss, self.weights)
-		return targets, updates
+		loss = tf.losses.mean_squared_error(predictions=self.outputs[0], labels=targets[0])
+		gradients = tf.gradients(loss, self.weights)
+		return targets, loss, gradients
 	
 	def _training(self):
 		gradients = [tf.placeholder(shape=variable.shape, dtype=tf.float32, name='Gradients_{}'.format(i))
@@ -76,4 +77,5 @@ class CriticModel(BaseModel):
 		clipped_gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 		optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
 		apply = optimizer.apply_gradients(zip(clipped_gradients, self.weights))
-		return gradients, apply
+		minimize = optimizer.minimize(self.loss)
+		return gradients, apply, minimize
