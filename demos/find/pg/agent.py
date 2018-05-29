@@ -1,6 +1,5 @@
 import numpy as np
-from zeppelin import Agent as BaseAgent
-from zeppelin.utils import discount, Transitions
+from zeppelin.utils import Agent as BaseAgent, discount, Transitions
 
 from .models import Model
 
@@ -13,22 +12,16 @@ class Agent(BaseAgent):
 		self.decay = decay
 		
 		self.model = Model(((dimensions,),), ((dimensions*2,),), [7])
-		self.episode = 0
-		self.memory = Transitions(
-			cause_keys=['positions', 'actions'],
-			effect_keys=['rewards', 'dones', 'outcomes'],
-			extra_keys=['perf']
-		)
+		self.memory = Transitions(['positions', 'actions'], ['rewards', 'dones', 'outcomes'])
 	
-	def react(self, position, time, reward=0, done=False):
+	def react(self, position, time, reward=0, done=None):
 		action = self.respond(position)
-		self.memory.store(position.copy(), action, reward, bool(done), position.copy(), perf=reward)
+		self.memory.store(position.copy(), action, reward, bool(done), position.copy())
 		if done:
 			self.learn()
 			self.memory.forget()
 			self.epsilon *= self.decay
-			self.episode += 1
-		self.age += 1
+		super().react(reward, done)
 		return {'action': action}
 	
 	def respond(self, position):

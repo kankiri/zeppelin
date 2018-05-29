@@ -4,7 +4,7 @@ class Agent:
 		self.age = 0
 	
 	def react(self):
-		pass
+		self.age += 1
 
 
 class ConnectedAgent(Agent):

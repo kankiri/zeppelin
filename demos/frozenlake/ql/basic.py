@@ -1,36 +1,30 @@
 import numpy as np
-from zeppelin import Agent as BaseAgent
-from zeppelin.utils import discount, Transitions
+from zeppelin.utils import Agent as BaseAgent, discount, Transitions
 
-from .models import Model
+from zeppelin.utils.tf.ql import Model
 
 
 class Agent(BaseAgent):
-	def __init__(self, name, dimensions, batch=10, gamma=0.95, epsilon=1, decay=1-1e-4):
+	def __init__(self, name, batch=10, gamma=0.95, epsilon=1, decay=1-1e-4):
 		super().__init__(name)
 		self.batch = batch
 		self.gamma = gamma
 		self.epsilon = epsilon
 		self.decay = decay
 		
-		self.model = Model(((dimensions,),), ((dimensions*2,),), [7])
-		self.episode = 0
-		self.memory = Transitions(
-			cause_keys=['positions', 'actions'],
-			effect_keys=['rewards', 'dones', 'outcomes'],
-			extra_keys=['perf']
-		)
+		self.model = Model([[16]], [[4]], [15])
+		self.memory = Transitions(['positions', 'actions'], ['rewards', 'dones', 'outcomes'])
 	
-	def react(self, position, time, reward=0, done=False):
+	def react(self, position, reward=0, done=None):
+		zeros = np.zeros(16); zeros[position] = 1; position = zeros
 		action = self.respond(position)
-		self.memory.store(position.copy(), action, reward, bool(done), position.copy(), perf=reward)
+		self.memory.store(position.copy(), action, reward, bool(done), position.copy())
 		if self.age % self.batch == (self.batch - 1) or done:
 			self.learn(self.batch)
 		if done:
 			self.memory.forget()
 			self.epsilon *= self.decay
-			self.episode += 1
-		self.age += 1
+		super().react(reward, done)
 		return {'action': action}
 	
 	def respond(self, position):

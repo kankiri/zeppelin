@@ -12,9 +12,8 @@ class Universe:
 				break
 			for name, world in self.worlds.items():
 				world.step()
-	
-	@staticmethod
-	def async(universe, limit=None):
+
+	def async(self, limit=None):
 		for name, world in self.worlds.items():
 			p = Process(target=world.run, args=(limit,))
 			p.start()

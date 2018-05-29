@@ -1,9 +1,17 @@
 from functools import partial
 import types
 
+from zeppelin import Agent, World
 
-def add(agent, function):
-	react = agent.react
-	wrapped = partial(function, react)
-	agent.react = types.MethodType(wrapped, agent)
-	return agent
+
+def add(o, method):
+	if isinstance(o, Agent):
+		react = o.react
+		wrapped = partial(method, react)
+		o.react = types.MethodType(wrapped, o)
+		return o
+	elif isinstance(o, World):
+		step = o.step
+		wrapped = partial(method, step)
+		o.step = types.MethodType(wrapped, o)
+		return o

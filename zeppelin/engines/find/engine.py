@@ -1,11 +1,17 @@
 import numpy as np
 
+from . import config
 from zeppelin import Engine as BaseEngine
 
 
 class Engine(BaseEngine):
 	def __init__(self, agents, dimensions=2, maxtime=1000, step_factor=1, win_factor=0, time_factor=0):
 		super().__init__(agents)
+		self.observation_shapes = config.observation_shapes
+		self.observation_shapes['position']['shape'] = (dimensions,)
+		self.action_shapes = config.action_shapes
+		self.action_shapes['action']['max'] = (dimensions*2,)
+
 		self.agent_name = list(agents)[0]
 		self.target = np.array([14] * dimensions)
 		self.maxtime = maxtime
@@ -26,8 +32,8 @@ class Engine(BaseEngine):
 			'time': self.time
 		}}
 	
-	def step(self, action):
-		action = action[self.agent_name]['action']
+	def step(self, actions):
+		action = actions[self.agent_name]['action']
 		self.position += self._direction(action)
 		distance = self._get_distance()
 		reward = (self.distance - distance) * self.step_factor

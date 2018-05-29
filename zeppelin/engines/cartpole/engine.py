@@ -1,12 +1,16 @@
-from universe import Engine as BaseEngine
-
 import gym
 import numpy as np
+
+from . import config
+from zeppelin import Engine as BaseEngine
 
 
 class Engine(BaseEngine):
 	def __init__(self, agents):
 		super().__init__(agents)
+		self.observation_shapes = config.observation_shapes
+		self.action_shapes = config.action_shapes
+
 		self.agent_name = list(agents)[0]
 		self.environment = gym.make('CartPole-v0')
 	
@@ -14,8 +18,8 @@ class Engine(BaseEngine):
 		observations = self.environment.reset()
 		return {self.agent_name: self._to_dict(observations)}
 		
-	def step(self, action):
-		action = action[self.agent_name]['action']
+	def step(self, actions):
+		action = actions[self.agent_name]['action']
 		observations, reward, done, _ = self.environment.step(action)
 		result = {
 			self.agent_name: {**self._to_dict(observations), **{

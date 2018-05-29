@@ -1,11 +1,16 @@
 from random import randrange, sample
+from typing import Optional
 
+from . import config
 from zeppelin import Engine as BaseEngine
 
 
 class Engine(BaseEngine):
 	def __init__(self, agents):
 		super().__init__(agents)
+		self.observation_shapes = config.observation_shapes
+		self.action_shapes = config.action_shapes
+
 		self.numbers = None
 		self.last = None
 		self.favorite = None

@@ -27,7 +27,7 @@ class Model(BaseModel):
 			for i, shape in enumerate(self.output_shapes)]
 		
 		loss = tf.losses.mean_squared_error(predictions=self.outputs[0], labels=targets[0])
-		ugradients = tf.gradients(loss, self.weights)
+		gradients = tf.gradients(loss, self.weights)
 		return targets, loss, gradients
 	
 	def _training(self):

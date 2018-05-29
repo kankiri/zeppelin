@@ -1,8 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from zeppelin import Agent as BaseAgent
-from zeppelin.utils import Transitions
+from zeppelin.utils import Agent as BaseAgent
 from zeppelin.utils.tf import Model as BaseModel
 
 
@@ -17,9 +16,7 @@ class Model(BaseModel):
 class Agent(BaseAgent):
 	def __init__(self, name, dimensions):
 		super().__init__(name)
-		
 		self.model = Model(((dimensions,),), ((dimensions*2,),))
-		self.memory = Transitions(['dummy'], extra_keys=['perf'])
 		
 		weights = np.zeros((dimensions, dimensions * 2))
 		for i in range(dimensions):
@@ -30,10 +27,9 @@ class Agent(BaseAgent):
 			[14., -14.] * dimensions
 		])
 	
-	def react(self, position, time, reward=0, done=False):
+	def react(self, position, time, reward=0, done=None):
 		prediction = self.model.predict([position[np.newaxis]])[0][0]
 		choice = np.random.choice(prediction, p=prediction)
 		action = np.argmax(prediction == choice)
-		self.memory.store(perf=reward)
-		self.age += 1
+		super().react(reward, done)
 		return {'action': action}

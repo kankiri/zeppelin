@@ -13,7 +13,7 @@ lib64/
 
 *.log
 *.out
-*.pf
+*.csv
 
 data/
 .*venv/
